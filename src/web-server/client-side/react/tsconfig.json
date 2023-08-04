@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "CommonJS",
+    "sourceMap": true,
+    "strictNullChecks": true,
+    "noImplicitAny": true,
+    "esModuleInterop": true,
+    "strict": true,
+    "jsx": "react-jsx",
+    "rootDir": "src",
+    "types": [
+      "styled-jsx"
+    ]
+  },
+  "include": [
+    /// ↓
+    "src/**/*",
+  ],
+  "exclude": [
+    "./dist/**/*"
+  ]
+}

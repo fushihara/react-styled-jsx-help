@@ -1,0 +1,32 @@
+name: dockerイメージを作成してghcr.ioに公開する
+
+on: push
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: レポジトリをチェックアウト
+        uses: actions/checkout@v3
+      - name: 環境変数作成
+        env:
+          TZ: "Asia/Tokyo" # タイムゾーン指定
+        run: |
+          : # ほげほげ
+          echo "COMMIT_DATE_VERSION_TAG=$(git log --format=%cd --date="format:%Y_%m%d_%H%M%S")" >> $GITHUB_ENV
+          echo "COMMIT_DATE_VERSION_READABLE=$(git log --format=%cd --date="format:%Y/%m/%d %H:%M:%S")" >> $GITHUB_ENV
+      - name: イメージをビルド
+        run: |
+          docker build -t "ghcr.io/${{github.repository}}:${{ env.COMMIT_DATE_VERSION_TAG }}" \
+                       -t "ghcr.io/${{github.repository}}:latest" \
+                       --build-arg "repo_url=https://github.com/${{github.repository}}/commit/${{github.sha}}?w=1" \
+                       --build-arg "repo_time=${{env.COMMIT_DATE_VERSION_READABLE}}" \
+                       --build-arg "docker_container_tag=${{env.COMMIT_DATE_VERSION_TAG}}" \
+                       .
+      - name: ghcr.ioにログイン
+        run: |
+          echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
+      - name: イメージをpush
+        run: |
+          : # docker push ghcr.io/${{github.repository}}:${{ env.COMMIT_DATE_VERSION_TAG }}
+          docker push ghcr.io/${{github.repository}}:latest
